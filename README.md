@@ -30,6 +30,6 @@ Step 2: ```python train.py --mode='train' --use_embedding=True --epochs=10 --lr=
 
 ## Test our model TransRNAm on the *TEST_M.mus*
 
-Step 1: ```CD mouse```
+Step 1: ```CD Cross_species_Mouse```
 
 Step 2:```python test.py```
