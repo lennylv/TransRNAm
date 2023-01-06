@@ -273,7 +273,7 @@ def cal_metrics(model_out,label,plot=True,class_names=None,plot_name=None):
         best_threshold = thresholds[ix]
         y_pred_new = np.array([0 if instance < best_threshold else 1 for instance in list(y_score)])
     
-        tn, fp, fn, tp = confusion_matrix(y_true, y_pred_new).ravel()
+        tn, fp, fn, tp = confusion_matrix(y_true[i*100:(i+1)*100], y_pred_new[i*100:(i+1)*100]).ravel()
         pp = tp+fn
         pn = tn+fp
         sensitivity = tp / pp
