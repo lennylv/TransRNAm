@@ -30,6 +30,6 @@ Step 2: ```python train.py --mode='train' --use_embedding=True --epochs=10 --lr=
 
 Step 1: ```CD attention_map```
 
-Step 2: ```run 'attn_map.ipynb```
+Step 2: ```run attn_map.ipynb```
 
 
