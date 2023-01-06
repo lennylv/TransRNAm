@@ -92,17 +92,13 @@ def test(model,test_loader,loss_weight,use_embedding,use_uncertain_weighting,Mul
             if t==0:
                 L=['train','valid','test']
                 mode=x[0][1].int()
-                # print(mode)
-                # fp=pickle.load(open('../mydata/{}_data_w2v.pickle'.format(L[mode]),'rb'))
-                # fn=pickle.load(open('../mydata/{}_data_NA.pickle'.format(L[mode]),'rb'))
                 fp=pd.read_json('{}_Word2vec_encodingmatrix.json'.format(L[mode]))
-                fn=np.load('{}_NCP_ANF_encodingmatrix.npy'.format(L[mode]))
                 t=1
             x, y_true = x.cuda(numgpu), y_true.cuda(numgpu)
             # resize input x from 1001 features
             if not use_embedding:
                 x = x.view(x.size(0),-1,4).transpose(1,2)
-            y_pred = model(x,fp,fn)
+            y_pred = model(x,fp)
             if use_uncertain_weighting:
                 MultiTaskLossWrapper.eval()
                 test_loss += MultiTaskLossWrapper(y_pred,y_true)
@@ -199,7 +195,6 @@ def train(model,train_loader,test_loader,args):
                 L=['train','valid','test']
                 mode=x[0][1].int()
                 fp=pd.read_json('{}_test_Word2vec_encodingmatrix.json'.format(L[mode]))
-                fn=np.load('{}_NCP_ANF_encodingmatrix.npy'.format(L[mode]))
                 print("data has been loaded...")
             x, y_true = x.cuda(numgpu), y_true.cuda(numgpu)
             # A 1 0 0 0
@@ -212,7 +207,7 @@ def train(model,train_loader,test_loader,args):
                 x = x.view(x.size(0),-1,4).transpose(1,2)
 
             optimizer.zero_grad()
-            y_pred = model(x,fp,fn)
+            y_pred = model(x,fp)
 
             #print('%d-batch'%i, loss_weight[0].is_leaf)
             if args.use_uncertain_weighting:
@@ -273,7 +268,7 @@ def train(model,train_loader,test_loader,args):
             print("best val_acc increased to %.4f" % best_val_acc)
     logfile.close()
 
-    torch.save(model.state_dict(), args.save_dir + '/noseq_NCP_ANF.pkl')
+    torch.save(model.state_dict(), args.save_dir + '/result.pkl')
     print('Trained model saved to \'%s/trained_model.h5\'' % (args.save_dir))
     print("Total time = %ds" % (time() - t0))
     print('End Training' + '-' * 70)
@@ -333,7 +328,7 @@ if __name__ == "__main__":
     from torch.optim import Adam, lr_scheduler
 
     from sklearn.metrics import roc_auc_score, average_precision_score
-    model = model_v4(num_task=args.num_task)
+    model = model_v11(num_task=args.num_task)
     device = torch.device("cuda:{}".format(numgpu) if torch.cuda.is_available() else "cpu")
     model.to(device)
 
@@ -371,17 +366,17 @@ if __name__ == "__main__":
 
         # handle with CUDA memory issue
         try:
-            y_pred = model(x_test.cuda(numgpu),fp,fn)
+            y_pred = model(x_test.cuda(numgpu),fp)
         except RuntimeError:
             print('Catch RuntimeError, parepare to batch the test set'+ '-'* 50)
             batch_size = 1
             num_iter = x_test.shape[0] // batch_size
 
             x_test_tem = x_test[0:1*batch_size,...]
-            y_pred = model(x_test_tem.cuda(numgpu),fp,fn)
+            y_pred = model(x_test_tem.cuda(numgpu),fp)
             for i in range(1, num_iter):
                 x_test_tem = x_test[i*batch_size:(i+1)*batch_size,...]
-                y_pred_tem = model(x_test_tem.cuda(numgpu),fp,fn)
+                y_pred_tem = model(x_test_tem.cuda(numgpu),fp)
                 for j in range(args.num_task):
                     y_pred[j] = torch.cat((y_pred[j].cpu().detach(),y_pred_tem[j].cpu().detach()),dim=0)
 
