@@ -13,14 +13,12 @@ The *test_NCP_ANF_encodingmatrix.npy*, *test_Word2vec_encodingmatrix.json*, and 
 The *test_encodingmatrix_index.json* and *valid_Word2vec_encodingmatrix.json* in *./Scripts* are samples indices of test set and valid set, respectively. This is done to facilitate data loaders loading the same batch of data in both branches.
 
 
-### *TEST_M.mus*
-The file data.pkl and label.pkl in the *./Cross_species_Mouse* is the data of raw RNA sequences and label data on the M.musculus, respectively.
 
 ## Test our model TransRNAm on the *DS<sub>_song</sub>*
 
 Step 1: ```CD Scripts```
 
-Step 2: ```python train.py --mode='test'  --use_embedding=True --weights='../Optimal_Model/seq+NCP+ANF1001.pkl'```
+Step 2: ```python train.py --mode='test'  --use_embedding=True --weights='../Optimal_Model/Best_weights.pkl'```
 
 ## Train your own model on the *DS<sub>_song</sub>*
 
@@ -28,8 +26,4 @@ Step 1: ```CD scripts```
 
 Step 2: ```python train.py --mode='train' --use_embedding=True --epochs=10 --lr=0.0001 --batch_size=64```
 
-## Test our model TransRNAm on the *TEST_M.mus*
 
-Step 1: ```CD Cross_species_Mouse```
-
-Step 2:```python test.py```
