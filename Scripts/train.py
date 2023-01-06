@@ -355,7 +355,6 @@ if __name__ == "__main__":
                            use_embedding=args.use_embedding, mode=args.mode)
         x_test, y_test = test_data[:]
         fp=pd.read_json('./test_Word2vec_encodingmatrix.json')
-        fn=np.load('./test_NCP_ANF_encodingmatrix.npy')
         torch.cuda.empty_cache()
 
         if not args.use_embedding:
