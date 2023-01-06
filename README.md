@@ -22,8 +22,14 @@ Step 2: ```python train.py --mode='test'  --use_embedding=True --weights='../Opt
 
 ## Train your own model on the *DS<sub>_song</sub>*
 
-Step 1: ```CD scripts```
+Step 1: ```CD Scripts```
 
 Step 2: ```python train.py --mode='train' --use_embedding=True --epochs=10 --lr=0.0001 --batch_size=64```
+
+## Generate attention_maps
+
+Step 1: ```CD attention_map```
+
+Step 2: ```run 'attn_map.ipynb```
 
 
