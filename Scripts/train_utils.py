@@ -15,13 +15,9 @@ def three_mer(seq,fp):
     seq=seq[0,:]
     seqs=fp.loc[seq.cpu().numpy()].to_numpy()
     seqs = torch.from_numpy(seqs)
+    seqs=seqs[:,seqs.shape[1]//2-299:seqs.shape[1]//2+299+1]
     seqs = seqs.type('torch.cuda.FloatTensor')
     return seqs
-def NCP(seq,fn):
-    seqs=seq[0,:]
-    res=fn[seqs.cpu().numpy().astype('int64')]
-    res=res[:,res.shape[1]//2-24:res.shape[1]//2+24+1]
-    return res
 
 class RMdata(Dataset):
 
@@ -220,7 +216,7 @@ def cal_metrics(model_out,label,plot=True,class_names=None,plot_name=None):
     num_task = len(model_out)
 
 
-    threshold_list=[0.012895,0.016116,0.044296, 0.090964,0.046770, 0.120424, 0.171631, 0.051592,0.029826,0.065932,0.138664,0.073055] #best
+    threshold_list=[0.032287,0.104127, 0.240300,0.106485,0.280016,0.206687, 0.112752, 0.677395,0.116058, 0.301949, 0.130112,0.446595] #best
 
 
 
@@ -267,14 +263,14 @@ def cal_metrics(model_out,label,plot=True,class_names=None,plot_name=None):
         precisions[i], recalls[i], _ = precision_recall_curve(y_true[i*100:(i+1)*100], y_score[i*100:(i+1)*100])
         precisions_m[i], recalls_m[i], _ = precision_recall_curve(y_true, y_score)
 
-        gmeans = np.sqrt(tpr_2[i] * (1-fpr_2[i]))
-        # gmeans = np.sqrt(tpr[i] * (1-fpr[i]))
+#         gmeans = np.sqrt(tpr_2[i] * (1-fpr_2[i]))
+        gmeans = np.sqrt(tpr[i] * (1-fpr[i]))
         # locate the index of the largest g-mean
         ix = np.argmax(gmeans)
         print('Best Threshold=%f, G-Mean=%.3f' % (thresholds_2[ix], gmeans[ix]))
 
-        best_threshold = thresholds_2[ix]
-        # best_threshold = thresholds[ix]
+#         best_threshold = thresholds_2[ix]
+        best_threshold = thresholds[ix]
         y_pred_new = np.array([0 if instance < best_threshold else 1 for instance in list(y_score)])
     
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred_new).ravel()
