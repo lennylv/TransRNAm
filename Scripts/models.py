@@ -13,7 +13,7 @@ class NaiveNet(nn.Module):
     def __init__(self, input_size=None):
         super(NaiveNet, self).__init__()
         self.NaiveCNN = nn.Sequential(
-            nn.Conv1d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=0),  # [bs, 8, 72]
+            nn.Conv1d(in_channels=4, out_channels=1, kernel_size=7, stride=2, padding=0),  # [bs, 8, 72]
             nn.ReLU(),
             nn.Dropout(p=0.2),
             nn.Conv1d(in_channels=8, out_channels=32, kernel_size=3, stride=1, padding=1),  # [bs 32 72]
@@ -29,7 +29,7 @@ class NaiveNet(nn.Module):
         in_features_2 = (in_features_1 - 2) // 2 + 1
         in_features_3 = (in_features_2 - 2) // 2 + 1
         self.Flatten = nn.Flatten()
-        self.SharedFC = nn.Sequential(nn.Linear(in_features=128 * in_features_3, out_features=512),
+        self.SharedFC = nn.Sequential(nn.Linear(in_features=128 * in_features_3, out_features=256),
                                       nn.ReLU(),
                                       nn.Dropout()
                                       )
