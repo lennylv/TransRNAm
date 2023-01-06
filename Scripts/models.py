@@ -188,130 +188,18 @@ class model_v3(nn.Module):
         return outs
 
 # *************************************************************
-class model_v4(nn.Module):
+class model_v11(nn.Module):
 
     def __init__(self,num_task):
-        super(model_v4,self).__init__()
+        super(model_v11,self).__init__()
 
         self.num_task = num_task
         # self.linear = nn.Linear(4, 512)
-        # self.embed = EmbeddingSeq('../Embeddings/embeddings_12RM.pkl') 
-        self.transfomer= MyTransformerModel(embedding_dim=300, p_drop=0.1, h=2, output_size=512)
-        # self.transfomerlayer=TransformerEncoderLayer(d_model=4,nhead=2,dim_feedforward=128)
-        # self.transfomer2=TransformerEncoder(self.transfomerlayer,num_layers=6)
-        self.cnn=NaiveNet(input_size=51)
-        for i in range(num_task):
-            setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                       nn.Linear(in_features=1024,out_features=128),
-                                       nn.ReLU(),
-                                       nn.Dropout(),
-                                       nn.Linear(in_features=128,out_features=1),
-                                       nn.Sigmoid()
-                                                    ))
-    def forward(self,x,fp,fn):
-        x=x.permute(1,0)
-        output1=self.transfomer(three_mer(x,fp).cuda(numgpu)).cuda(numgpu)
-        output1=torch.reshape(output1,(-1,512))
-        out=NCP(x,fn)
-        out=torch.tensor(out,dtype=torch.float32).permute(0, 2, 1)
-        output2=self.cnn(out.cuda(numgpu)).cuda(numgpu)
-        output=torch.cat((output1,output2),-1)
-        file_handle=open('TS.txt',mode='a')
-        #将tensor变量转化为numpy类型
-        x = output.cpu().detach().numpy()
-        #将numpy类型转化为list类型
-        x=x.tolist()
-        #将list转化为string类型
-        strNums=[str(x_i) for x_i in x]
-        str1=",".join(strNums)
-        #将str类型数据存入本地文件1.txt中
-        file_handle.write(str1)
-
-        outs = []
-        for i in range(self.num_task):
-            FClayer = getattr(self, "NaiveFC%d" %i)
-            y = FClayer(output)
-            y = torch.squeeze(y, dim=-1)
-            outs.append(y)
-        return outs
-
-class model_v4_test(nn.Module):
-
-    def __init__(self,num_task):
-        super(model_v4_test,self).__init__()
-
-        self.num_task = num_task
-        self.transfomer= MyTransformerModel(embedding_dim=300, p_drop=0.1, h=2, output_size=512)
-        self.cnn=NaiveNet(input_size=51)
-        for i in range(num_task):
-            setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                    #    nn.Linear(in_features=1024,out_features=512),
-                                    #    nn.ReLU(),
-                                    #    nn.Dropout(),
-                                       nn.Linear(in_features=1024,out_features=128),
-                                       nn.ReLU(),
-                                       nn.Dropout(),
-                                       nn.Linear(in_features=128,out_features=1),
-                                       nn.Sigmoid()
-                                                    ))
-    def forward(self,x1,x2):
-        output1=self.transfomer(x1.cuda(numgpu)).cuda(numgpu)
-        output1=torch.reshape(output1,(-1,512))
-        out=x2
-        out=torch.tensor(out,dtype=torch.float32).permute(0, 2, 1)
-        output2=self.cnn(out.cuda(numgpu)).cuda(numgpu)
-        output=torch.cat((output1,output2),-1)
-        outs = []
-        for i in range(self.num_task):
-            FClayer = getattr(self, "NaiveFC%d" %i)
-            y = FClayer(output)
-            y = torch.squeeze(y, dim=-1)
-            outs.append(y)
-        return outs
-class model_v4_test_onlyseq(nn.Module):
-
-    def __init__(self,num_task):
-        super(model_v4_test_onlyseq,self).__init__()
-
-        self.num_task = num_task
-        self.transfomer= MyTransformerModel(embedding_dim=300, p_drop=0.1, h=2, output_size=512)
-        for i in range(num_task):
-            setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                    #    nn.Linear(in_features=1024,out_features=512),
-                                    #    nn.ReLU(),
-                                    #    nn.Dropout(),
-                                       nn.Linear(in_features=512,out_features=128),
-                                       nn.ReLU(),
-                                       nn.Dropout(),
-                                       nn.Linear(in_features=128,out_features=1),
-                                       nn.Sigmoid()
-                                                    ))
-    def forward(self,x1):
-        output1=self.transfomer(x1.cuda(numgpu)).cuda(numgpu)
-        output1=torch.reshape(output1,(-1,512))
-        output=output1
-        outs = []
-        for i in range(self.num_task):
-            FClayer = getattr(self, "NaiveFC%d" %i)
-            y = FClayer(output)
-            y = torch.squeeze(y, dim=-1)
-            outs.append(y)
-        return outs
-class model_v5(nn.Module):
-
-    def __init__(self,num_task):
-        super(model_v5,self).__init__()
-
-        self.num_task = num_task
-        self.linear = nn.Linear(4, 512)
         self.transfomer1= MyTransformerModel(embedding_dim=300, p_drop=0.2, h=6, output_size=512)
-        # self.embed = EmbeddingSeq('../Embeddings/embeddings_12RM.pkl') 
-        # self.transfomerlayer=TransformerEncoderLayer(d_model=300,nhead=4,dim_feedforward=128)
-        # self.transfomer1=TransformerEncoder(self.transfomerlayer,num_layers=6)
-        # self.cnn=NaiveNet(input_size=1001)
+        self.cnn=NaiveNet(input_size=512)
         for i in range(num_task):
             setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                       nn.Linear(in_features=512,out_features=128),
+                                       nn.Linear(in_features=768,out_features=128),
                                        nn.ReLU(),
                                        nn.Dropout(),
                                        nn.Linear(in_features=128,out_features=1),
@@ -319,14 +207,16 @@ class model_v5(nn.Module):
                                                     ))
     def forward(self,x,fp):
         x=x.permute(1,0)
-        output1=self.transfomer1(three_mer(x,fp).cuda(numgpu)).cuda(numgpu)
-        # input1=three_mer(x,fp)
-        # input1=self.embed(input1)
-        # output1=self.transfomer(input1)
-        # output1=output1.sum(1) / (output1.shape[1] + 1e-5)
-        # output1=self.linear(output1).squeeze()
-        output=torch.reshape(output1,(-1,512))
-        # output=output1
+        output1=self.transfomer1(three_mer(x,fp).cuda(numgpu))
+        # output=torch.reshape(output1,(-1,512))
+        if output1.shape[0]==512:
+            output1 = output1.unsqueeze(0)
+            output = output1.unsqueeze(1)
+        else:
+            output = output1.unsqueeze(1)
+        output=self.cnn(output)
+        output=torch.cat((output1,output),-1)
+
         outs = []
         for i in range(self.num_task):
             FClayer = getattr(self, "NaiveFC%d" %i)
@@ -335,65 +225,35 @@ class model_v5(nn.Module):
             outs.append(y)
         return outs
 
-class model_v5_test(nn.Module):
+class model_v11_test(nn.Module):
 
     def __init__(self,num_task):
-        super(model_v4_test_onlyseq,self).__init__()
-
-        self.num_task = num_task
-        self.transfomer= MyTransformerModel(embedding_dim=300, p_drop=0.1, h=2, output_size=512)
-        for i in range(num_task):
-            setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                    #    nn.Linear(in_features=1024,out_features=512),
-                                    #    nn.ReLU(),
-                                    #    nn.Dropout(),
-                                       nn.Linear(in_features=512,out_features=128),
-                                       nn.ReLU(),
-                                       nn.Dropout(),
-                                       nn.Linear(in_features=128,out_features=1),
-                                       nn.Sigmoid()
-                                                    ))
-    def forward(self,x1):
-        output1=self.transfomer(x1.cuda(numgpu)).cuda(numgpu)
-        output1=torch.reshape(output1,(-1,512))
-        output=output1
-        outs = []
-        for i in range(self.num_task):
-            FClayer = getattr(self, "NaiveFC%d" %i)
-            y = FClayer(output)
-            y = torch.squeeze(y, dim=-1)
-            outs.append(y)
-        return outs
-
-class model_v6(nn.Module):
-
-    def __init__(self,num_task):
-        super(model_v6,self).__init__()
+        super(model_v11_test,self).__init__()
 
         self.num_task = num_task
         # self.linear = nn.Linear(4, 512)
-        # self.embed = EmbeddingSeq('../Embeddings/embeddings_12RM.pkl') 
-        # self.transfomer= MyTransformerModel(embedding_dim=300, p_drop=0.1, h=2, output_size=512)
-        # self.transfomerlayer=TransformerEncoderLayer(d_model=4,nhead=2,dim_feedforward=128)
-        # self.transfomer2=TransformerEncoder(self.transfomerlayer,num_layers=6)
-        self.cnn=NaiveNet(input_size=51)
+        self.transfomer1= MyTransformerModel(embedding_dim=300, p_drop=0.2, h=6, output_size=512)
+        self.cnn=NaiveNet(input_size=512)
         for i in range(num_task):
             setattr(self, "NaiveFC%d" %i, nn.Sequential(
-                                       nn.Linear(in_features=512,out_features=128),
+                                       nn.Linear(in_features=768,out_features=128),
                                        nn.ReLU(),
                                        nn.Dropout(),
                                        nn.Linear(in_features=128,out_features=1),
                                        nn.Sigmoid()
                                                     ))
-    def forward(self,x,fp,fn):
-        x=x.permute(1,0)
-        # output1=self.transfomer(three_mer(x,fp).cuda(numgpu)).cuda(numgpu)
-        # output1=torch.reshape(output1,(-1,512))
-        out=NCP(x,fn)
-        out=torch.tensor(out,dtype=torch.float32).permute(0, 2, 1)
-        output2=self.cnn(out.cuda(numgpu)).cuda(numgpu)
-        # output=torch.cat((output1,output2),-1)
-        output=output2
+    def forward(self,x):
+        # x=x.permute(1,0)
+        output1=self.transfomer1(x.cuda(numgpu))
+        # output=torch.reshape(output1,(-1,512))
+        if output1.shape[0]==512:
+            output1 = output1.unsqueeze(0)
+            output = output1.unsqueeze(1)
+        else:
+            output = output1.unsqueeze(1)
+        output=self.cnn(output)
+        output=torch.cat((output1,output),-1)
+
         outs = []
         for i in range(self.num_task):
             FClayer = getattr(self, "NaiveFC%d" %i)
